@@ -1,0 +1,42 @@
+# Ignore build directories (CMake build directories, out-of-source builds)
+build/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+*.cmake
+
+# Ignore generated files
+*.a
+*.lib
+*.so
+*.dll
+*.dylib
+*.exe
+*.o
+*.obj
+*.pdb
+*.idb
+*.lib
+*.exp
+*.pch
+
+# Ignore temporary files (e.g., OS-specific)
+.DS_Store        # macOS
+Thumbs.db        # Windows
+
+# Ignore test output
+*.log
+*.out
+*.test
+
+# Ignore coverage files
+*.gcda
+*.gcno
+*.gcov
+
+# Ignore compiled libraries or executables for specific modules
+EngineModules/*/bin/
+EngineModules/*/lib/
+
+# Ignore any other files or directories specific to your environment
