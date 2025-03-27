@@ -1,6 +1,6 @@
 #include "FirestarEngine.h"
-#include "Debug/Debug.h"
+#include <fmt/core.h>
 
 FirestarEngine::FirestarEngine() {
-    Debug::println("Test");
+    
 }

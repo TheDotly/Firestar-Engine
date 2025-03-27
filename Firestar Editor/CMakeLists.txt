@@ -20,3 +20,5 @@ add_executable(FirestarEditor ${SOURCES} ${HEADERS})
 target_link_libraries(FirestarEditor PUBLIC FirestarEngine)
 
 target_include_directories(FirestarEditor PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+INSTALL(TARGETS FirestarEditor DESTINATION ${CMAKE_SOURCE_DIR}/SDK)

@@ -9,7 +9,8 @@
                 "-B",
                 "${workspaceFolder}/build",
                 "-S",
-                "${workspaceFolder}"
+                "${workspaceFolder}",
+                "-DCMAKE_BUILD_TYPE=Debug"
             ],
             "problemMatcher": [],
             "group": {
@@ -24,13 +25,33 @@
             "command": "cmake",
             "args": [
                 "--build",
-                "${workspaceFolder}/build"
+                "${workspaceFolder}/build",
+                "--config",
+                "Debug"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "dependsOn": ["configure"]
+        },
+        {
+            "label": "install",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--install",
+                "${workspaceFolder}/build",
+                "--prefix",
+                "${workspaceFolder}/SDK",   
+                "--config",
+                "Debug"
             ],
             "group": {
                 "kind": "build",
                 "isDefault": true
             },
-            "dependsOn": ["configure"]
+            "dependsOn": ["build"]
         }
     ]
 }
