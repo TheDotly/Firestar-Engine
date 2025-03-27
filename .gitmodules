@@ -1,0 +1,6 @@
+[submodule "Firestar Engine/Library/fmt"]
+	path = Firestar Engine/Library/fmt
+	url = https://github.com/fmtlib/fmt.git
+[submodule "Firestar Engine/Library/SDL"]
+	path = Firestar Engine/Library/SDL
+	url = https://github.com/libsdl-org/SDL.git
