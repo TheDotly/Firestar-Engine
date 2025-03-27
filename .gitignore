@@ -1,5 +1,6 @@
 # Ignore build directories (CMake build directories, out-of-source builds)
 build/
+SDK/
 CMakeFiles/
 CMakeCache.txt
 cmake_install.cmake
