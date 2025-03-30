@@ -14,35 +14,36 @@ VulkanRenderer::~VulkanRenderer() {
 }
 
 Throw* VulkanRenderer::Initialise(GameInfo* info) {
+
     Throw* error = nullptr;
 
     error = InitGlobalLayerProperties(v_info);
-    if(Throw::Check(error)){
+    if(!Throw::Check(error)){
         return error;
     }
 
     
     error = InitInstance(v_info, *info);
-    if(Throw::Check(error)) {
+    if(!Throw::Check(error)) {
         return error;
     }
 
-
-    VkResult res;
-    uint32_t gpu_count = 1;
-    res = vkEnumeratePhysicalDevices(v_info.instance, &gpu_count, NULL);
-    if(res) {
-        error = Throw::ExitError("GPU not Found do you have one installed", -1);
+    error = InitEnumerateDevice(v_info, 0);
+    if(!Throw::Check(error)) {
         return error;
     }
 
-    v_info.gpus.resize(gpu_count);
-    res = vkEnumeratePhysicalDevices(v_info.instance, &gpu_count, v_info.gpus.data());
-    if(res) {
-        error = Throw::ExitError("GPU not Found do you have one installed", -1);
+    error = InitQueueFamilyIndex(v_info);
+    if(!Throw::Check(error)) {
         return error;
     }
 
+    error = InitDevice(v_info);
+    if(!Throw::Check(error)) {
+        return error;
+    }
+
+    
 
     return nullptr;
 }

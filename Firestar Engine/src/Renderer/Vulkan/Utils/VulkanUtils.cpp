@@ -1,4 +1,4 @@
-#include "Vulkan/Utils/VulkanUtils.h"
+#include "Renderer/Vulkan/Utils/VulkanUtils.h"
 
 Throw* VkResultToThrow(VkResult result, ErrorLevel level){
     switch (result)
@@ -125,6 +125,124 @@ Throw* InitInstance(VulkanInfo &info, GameInfo game){
     return nullptr;
 }
 
-Throw* InitEnumerateDevice(VulkanInfo &info){
+Throw* InitDeviceExtensionProperties(VulkanInfo &info, LayerProperties &layer_props){
+    VkExtensionProperties *device_extensions;
+    uint32_t device_extension_count;
+    VkResult res;
+    char *layer_name = NULL;
 
+    layer_name = layer_props.properties.layerName;
+
+    do {
+        // TODO: NEED TO UPDATE TO SUPPORT GPU SELECT
+        res = vkEnumerateDeviceExtensionProperties(info.gpus[0], layer_name, &device_extension_count, NULL);
+
+        if(res) return VkResultToThrow(res, exit_error);
+
+        if(device_extension_count == 0){
+            return nullptr;
+        }
+
+        layer_props.device_extentions.resize(device_extension_count);
+        device_extensions = layer_props.device_extentions.data();
+        // TODO: NEED TO ADD SUPPORT FOR GPU SELECT
+        res = vkEnumerateDeviceExtensionProperties(info.gpus[0], layer_name, &device_extension_count, device_extensions);
+    } while (res == VK_INCOMPLETE);
+   
+    return VkResultToThrow(res, exit_error);
+}
+
+Throw* InitEnumerateDevice(VulkanInfo &info, uint32_t gpu_count){
+    uint32_t const req_count = gpu_count;
+    VkResult result = vkEnumeratePhysicalDevices(info.instance, &gpu_count, NULL);
+
+    if(result){
+        return VkResultToThrow(result, exit_error);
+    }
+
+    info.gpus.resize(gpu_count);
+
+    result = vkEnumeratePhysicalDevices(info.instance, &gpu_count, info.gpus.data());
+    if(result){
+        return VkResultToThrow(result, exit_error);
+    }
+
+    // UPDATE THIS SO USER CAN SELECT MAIN GPU 
+    vkGetPhysicalDeviceQueueFamilyProperties(info.gpus[0], &info.queue_family_count, NULL);
+
+    if(!(info.queue_family_count >= 1)){
+        return Throw::ExitError("The GPU has to Little buffers");
+    }
+
+    // GPU SELECTION NEEDS TO BE ADDED LATER
+    vkGetPhysicalDeviceMemoryProperties(info.gpus[0], &info.memory_props);
+    vkGetPhysicalDeviceProperties(info.gpus[0], &info.gpu_props);
+
+    for(auto &layer_props : info.instance_layer_props){
+        Throw * error = InitDeviceExtensionProperties(info, layer_props);
+        if(error != nullptr){
+            return error;
+        }
+    }
+
+    return VkResultToThrow(result, exit_error);
+}
+
+
+Throw* InitQueueFamilyIndex(VulkanInfo &info){
+
+    // FIX FOR SELECTABLE GPU
+    vkGetPhysicalDeviceQueueFamilyProperties(info.gpus[0], &info.queue_family_count, NULL);
+    if(info.queue_family_count < 1){
+        return Throw::ExitError("Family Queue is To Small");
+    }
+
+    info.queue_props.resize(info.queue_family_count);
+    vkGetPhysicalDeviceQueueFamilyProperties(info.gpus[0], &info.queue_family_count, info.queue_props.data());
+    if(info.queue_family_count < 1){
+        return Throw::ExitError("Family Queue is To Small");
+    }
+
+    bool found = false;
+    for(unsigned int i = 0; i < info.queue_family_count; i++){
+        if(info.queue_props[i].queueFlags & VK_QUEUE_GRAPHICS_BIT){
+            info.graphics_queue_family_index = i;
+            found = true;
+            break;
+        }
+    }
+
+    if(!found){
+        return Throw::ExitError("The Graphics Queue never existed");
+    }
+    
+    return nullptr;
+}
+
+Throw* InitDevice(VulkanInfo &info){
+    VkResult res;
+    VkDeviceQueueCreateInfo queue_info = {};
+
+    float queue_priorities[1] = {0.0};
+    queue_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+    queue_info.pNext = NULL;
+    queue_info.queueCount = 1;
+    queue_info.pQueuePriorities = queue_priorities;
+    queue_info.queueFamilyIndex = info.graphics_queue_family_index;
+
+    VkDeviceCreateInfo device_info = {};
+    device_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    device_info.pNext = NULL;
+    device_info.queueCreateInfoCount = 1;
+    device_info.pQueueCreateInfos = &queue_info;
+    device_info.enabledExtensionCount = info.device_extension_names.size();
+    device_info.ppEnabledExtensionNames = device_info.enabledExtensionCount ? info.device_extension_names.data() : NULL;
+    device_info.pEnabledFeatures = NULL;
+
+    res = vkCreateDevice(info.gpus[0], &device_info, NULL, &info.device);
+    if(res){
+        return Throw::ExitError("Failed to Create Device");
+    }
+
+    return VkResultToThrow(res, exit_error);
 }

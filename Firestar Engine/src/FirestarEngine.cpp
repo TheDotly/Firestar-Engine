@@ -27,25 +27,17 @@ void FirestarEngine::Initialise(){
     s_mainWindow = new Window();
 
     fmt::print(fg(fmt::color::ivory), "Window: ");
-    if(s_mainWindow->Initialise()){
-        fmt::print(fg(fmt::color::green_yellow), "✔\n");
-    } else {
-        fmt::print(fg(fmt::color::orange_red), "✖\n");
-        fmt::print(fg(fmt::color::orange_red), s_mainWindow->getError());
-        exit(1);
-    }
+    error = s_mainWindow->Initialise();
+    Throw::Check(error);
+    fmt::print(fg(fmt::color::green_yellow), "✔\n");
+    
 
 
     fmt::print(fg(fmt::color::ivory), "Renderer: ");
     error = s_renderFactory->Initialise(i_gameInfo);
 
-    if(error == nullptr){
-        fmt::print(fg(fmt::color::green_yellow), "✔\n");
-    } else {
-        fmt::print(fg(fmt::color::orange_red), "✖\n");
-        error->Print();
-        exit(1);
-    }
+    Throw::Check(error);
+    fmt::print(fg(fmt::color::green_yellow), "✔\n");
 
     while (true)
     {

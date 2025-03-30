@@ -61,6 +61,9 @@ Throw* Throw::DynamicThrow(std::string error, ErrorLevel level){
     }
 }
 
+/// @brief Returns True if there is no error
+/// @param error the error
+/// @return Returns True if there is no error
 bool Throw::Check(Throw* error){
     if(error == nullptr){
         return true;

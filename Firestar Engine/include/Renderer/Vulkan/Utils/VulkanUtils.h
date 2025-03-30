@@ -18,7 +18,13 @@
 
 #define CMD_TIMEOUT 1000000
 
-struct vulkaninfo {
+typedef struct {
+    VkLayerProperties properties;
+    std::vector<VkExtensionProperties> instance_extentions;
+    std::vector<VkExtensionProperties> device_extentions;
+} LayerProperties;
+
+typedef struct {
     VkInstance instance;
     std::vector<VkPhysicalDevice> gpus;
     VkDevice device;
@@ -29,15 +35,24 @@ struct vulkaninfo {
     std::vector<LayerProperties> instance_layer_props;
     std::vector<VkExtensionProperties> instance_extention_props;
 
-};
+    uint32_t queue_family_count;
+    uint32_t current_buffer;
 
-typedef struct vulkaninfo VulkanInfo;
+    std::vector<const char*> device_extension_names;
+    std::vector<VkExtensionProperties> device_extension_properties;
+    uint32_t graphics_queue_family_index;
+    uint32_t present_queue_family_index;
+    VkPhysicalDeviceProperties gpu_props;
+    std::vector<VkQueueFamilyProperties> queue_props;
 
-typedef struct {
-    VkLayerProperties properties;
-    std::vector<VkExtensionProperties> instance_extentions;
-    std::vector<VkExtensionProperties> device_extentions;
-} LayerProperties;
+
+    //Memory
+    VkPhysicalDeviceMemoryProperties memory_props;
+
+} VulkanInfo;
+
+
+
 
 // Init Helper Functions
 Throw* InitGlobalExtentionProperties(LayerProperties &layer_props);
@@ -46,6 +61,14 @@ Throw* InitGlobalLayerProperties(VulkanInfo &info);
 
 Throw* InitInstance(VulkanInfo &info, GameInfo game);
 
-Throw* InitEnumerateDevice(VulkanInfo &info);
+Throw* InitEnumerateDevice(VulkanInfo &info, uint32_t gpu_count);
 
 Throw* VkResultToThrow(VkResult result, ErrorLevel level);
+
+Throw* InitDeviceExtensionProperties(VulkanInfo &info, LayerProperties &layer_props);
+
+// THIS MAY BE OBSOLETE DO NOT USE UNLESS TESTING 
+// RENDERPIPELING
+Throw* InitQueueFamilyIndex(VulkanInfo &info);
+
+Throw* InitDevice(VulkanInfo &info);
