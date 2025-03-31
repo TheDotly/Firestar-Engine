@@ -21,6 +21,12 @@
 
 #include <memory>
 
+typedef enum {
+    WINDOWS,
+    MACOS,
+    LINUX
+} Platform;
+
 class FirestarEngine
 {
 private:
@@ -47,4 +53,5 @@ public:
     Window* getMainWindow();
     ~FirestarEngine();
 
-};
+    static Platform GetPlatform();
+};  

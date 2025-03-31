@@ -72,3 +72,15 @@ Window* FirestarEngine::getMainWindow(){
 FirestarEngine::~FirestarEngine(){
 
 }
+
+Platform FirestarEngine::GetPlatform() {
+    #ifdef _WIN32
+    return WINDOWS;
+    #elif UNIX:
+        #ifdef APPLE:
+            return MACOS;
+        #else 
+            return LINUX;
+        #endif
+    #endif
+}

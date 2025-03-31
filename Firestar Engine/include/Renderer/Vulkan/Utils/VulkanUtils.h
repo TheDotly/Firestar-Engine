@@ -13,7 +13,7 @@
 #include "DataTypes/Throw.h"
 
 #include <vulkan/vulkan.h>
-
+#include "FirestarEngine.h"
 
 
 #define CMD_TIMEOUT 1000000
@@ -25,6 +25,12 @@ typedef struct {
 } LayerProperties;
 
 typedef struct {
+    VkImage image;
+    VkImageView view;
+} SwapChainBuffer;
+
+typedef struct {
+    FirestarEngine * engine;
     VkInstance instance;
     std::vector<VkPhysicalDevice> gpus;
     VkDevice device;
@@ -45,6 +51,18 @@ typedef struct {
     VkPhysicalDeviceProperties gpu_props;
     std::vector<VkQueueFamilyProperties> queue_props;
 
+    VkSurfaceKHR surface;
+
+    //Frame
+    VkFramebuffer *framebuffers;
+    GameInfo * game_info;
+    VkFormat format;
+
+    //Swap Frame
+    uint32_t swapchain_image_count;
+    VkSwapchainKHR swap_chain;
+    std::vector<SwapChainBuffer> buffers;
+    VkSemaphore ImageAcquiredSemaphore;
 
     //Memory
     VkPhysicalDeviceMemoryProperties memory_props;
@@ -75,3 +93,5 @@ Throw* InitDevice(VulkanInfo &info);
 
 void InitIntanceExtensionNames(VulkanInfo &info);
 void InitDeviceExtensionNames(VulkanInfo &info);
+
+Throw* InitSwapchainExtension(VulkanInfo &info);

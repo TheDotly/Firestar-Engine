@@ -32,7 +32,7 @@ Throw* Window::CreateWindow(GameInfo info, RenderAPI api) {
         break;
     }
 
-    v_window = SDL_CreateWindow(info.getTitle().c_str(), info.getWidth(), info.getHeight(), flags | SDL_WINDOW_HIGH_PIXEL_DENSITY);
+    v_window = new FSE_Window{SDL_CreateWindow(info.getTitle().c_str(), info.getWidth(), info.getHeight(), flags | SDL_WINDOW_HIGH_PIXEL_DENSITY)};
 
     if(v_window == nullptr){
         return Throw::ExitError(fmt::format("ERROR: SDL window Failed to Initialise: {}\n", SDL_GetError()));
@@ -40,7 +40,11 @@ Throw* Window::CreateWindow(GameInfo info, RenderAPI api) {
 }
 
 Window::~Window() {
-    SDL_DestroyWindow(v_window);
+    SDL_DestroyWindow(v_window->window);
 
     SDL_Quit();
+}
+
+FSE_Window* Window::getWindow(){
+    return v_window;
 }
