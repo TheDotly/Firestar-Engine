@@ -9,12 +9,13 @@
 RenderFactory::RenderFactory(RenderAPI api){
 
     fmt::print(fg(fmt::color::ivory), "Selected Render API: ");
+    FirestarEngine * engine = FirestarEngine::getInstance();
     v_api = api;
     switch (api)
     {
     case RenderAPI::Vulkan:
     fmt::print(fg(fmt::rgb(199,37,39)), "Vulkan\n");
-    s_renderer = new VulkanRenderer();
+    s_renderer = new VulkanRenderer(engine);
     break;
 
     default:

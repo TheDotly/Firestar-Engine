@@ -246,3 +246,11 @@ Throw* InitDevice(VulkanInfo &info){
 
     return VkResultToThrow(res, exit_error);
 }
+
+void InitIntanceExtensionNames(VulkanInfo &info){
+    info.instance_extention_names.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
+}
+
+void InitDeviceExtensionNames(VulkanInfo &info){
+    info.device_extension_names.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+}

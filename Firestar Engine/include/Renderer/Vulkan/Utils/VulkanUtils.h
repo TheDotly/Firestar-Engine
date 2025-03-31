@@ -72,3 +72,6 @@ Throw* InitDeviceExtensionProperties(VulkanInfo &info, LayerProperties &layer_pr
 Throw* InitQueueFamilyIndex(VulkanInfo &info);
 
 Throw* InitDevice(VulkanInfo &info);
+
+void InitIntanceExtensionNames(VulkanInfo &info);
+void InitDeviceExtensionNames(VulkanInfo &info);

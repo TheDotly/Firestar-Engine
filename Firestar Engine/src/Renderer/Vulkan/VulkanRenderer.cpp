@@ -1,12 +1,11 @@
 #include "Renderer/Vulkan/VulkanRenderer.h"
 
-// Extra Local Functions
 
 
 
 
-VulkanRenderer::VulkanRenderer() {
-
+VulkanRenderer::VulkanRenderer(FirestarEngine* engine) {
+    s_engine = engine;
 }
 
 VulkanRenderer::~VulkanRenderer() {
@@ -22,6 +21,9 @@ Throw* VulkanRenderer::Initialise(GameInfo* info) {
         return error;
     }
 
+    InitIntanceExtensionNames(v_info);
+    InitDeviceExtensionNames(v_info);
+
     
     error = InitInstance(v_info, *info);
     if(!Throw::Check(error)) {
@@ -33,7 +35,7 @@ Throw* VulkanRenderer::Initialise(GameInfo* info) {
         return error;
     }
 
-    error = InitQueueFamilyIndex(v_info);
+    /*error = InitQueueFamilyIndex(v_info);
     if(!Throw::Check(error)) {
         return error;
     }
@@ -41,9 +43,67 @@ Throw* VulkanRenderer::Initialise(GameInfo* info) {
     error = InitDevice(v_info);
     if(!Throw::Check(error)) {
         return error;
-    }
+    }*/
 
     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    s_engine->getMainWindow()->CreateWindow(*info, Vulkan);
 
     return nullptr;
 }

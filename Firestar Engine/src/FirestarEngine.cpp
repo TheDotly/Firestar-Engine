@@ -65,6 +65,10 @@ RenderFactory* FirestarEngine::getRenderFactory(){
     return s_renderFactory;
 }
 
+Window* FirestarEngine::getMainWindow(){
+    return s_mainWindow;
+}
+
 FirestarEngine::~FirestarEngine(){
 
 }

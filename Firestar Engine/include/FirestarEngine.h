@@ -42,7 +42,9 @@ public:
 
     void setGameInfo(GameInfo* info);
     GameInfo* getGameInfo();
+    // System Getters
     RenderFactory* getRenderFactory();
+    Window* getMainWindow();
     ~FirestarEngine();
 
 };
