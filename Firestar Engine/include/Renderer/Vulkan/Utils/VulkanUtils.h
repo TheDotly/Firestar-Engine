@@ -29,6 +29,14 @@ typedef struct {
     VkImageView view;
 } SwapChainBuffer;
 
+typedef struct{
+    VkFormat format;
+
+    VkImage image;
+    VkDeviceMemory mem;
+    VkImageView view;
+} Depth;
+
 typedef struct {
     FirestarEngine * engine;
     VkInstance instance;
@@ -52,6 +60,9 @@ typedef struct {
     std::vector<VkQueueFamilyProperties> queue_props;
 
     VkSurfaceKHR surface;
+
+    // BUffers
+    Depth depth;
 
     //Frame
     VkFramebuffer *framebuffers;
@@ -94,4 +105,6 @@ Throw* InitDevice(VulkanInfo &info);
 void InitIntanceExtensionNames(VulkanInfo &info);
 void InitDeviceExtensionNames(VulkanInfo &info);
 
-Throw* InitSwapchainExtension(VulkanInfo &info);
+Throw* InitSwapchainExtension(VulkanInfo &info, FirestarEngine* engine);
+
+bool memory_type_from_properties(VulkanInfo &info, uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex);
