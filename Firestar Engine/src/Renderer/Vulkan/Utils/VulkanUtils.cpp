@@ -1,6 +1,12 @@
 #include "Renderer/Vulkan/Utils/VulkanUtils.h"
 #include <SDL3/SDL_vulkan.h>
 
+
+#define NUM_SAMPLES VK_SAMPLE_COUNT_1_BIT
+
+#define NUM_VIEWPORTS 1
+#define NUM_SCISSORS NUM_VIEWPORTS
+
 Throw* VkResultToThrow(VkResult result, ErrorLevel level){
     switch (result)
     {
@@ -333,4 +339,321 @@ bool memory_type_from_properties(VulkanInfo &info, uint32_t typeBits, VkFlags re
     }
     // No memory types matched, return failure
     return false;
+}
+
+Throw* InitCommandPool(VulkanInfo &info){
+    VkResult res;
+
+    VkCommandPoolCreateInfo cmd_pool_info = {};
+    cmd_pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    cmd_pool_info.pNext = NULL;
+    cmd_pool_info.queueFamilyIndex = info.graphics_queue_family_index;
+    cmd_pool_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+
+    res = vkCreateCommandPool(info.device, &cmd_pool_info, NULL, &info.cmd_pool);
+
+    return VkResultToThrow(res, exit_error);
+}
+
+Throw* InitCommandBuffer(VulkanInfo &info){
+     VkResult res;
+
+     VkCommandBufferAllocateInfo cmd = {};
+     cmd.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+     cmd.pNext = NULL;
+     cmd.commandPool = info.cmd_pool;
+     cmd.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+     cmd.commandBufferCount = 1;
+
+     res =vkAllocateCommandBuffers(info.device, &cmd, &info.cmd);
+
+     return VkResultToThrow(res, exit_error);
+}
+
+Throw* ExecuteBeginCommandBuffer(VulkanInfo &info){
+    VkResult res;
+
+    VkCommandBufferBeginInfo cmd_buf_info = {};
+    cmd_buf_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    cmd_buf_info.pNext = NULL;
+    cmd_buf_info.flags = 0;
+    cmd_buf_info.pInheritanceInfo = NULL;
+
+    res = vkBeginCommandBuffer(info.cmd, &cmd_buf_info);
+
+    return VkResultToThrow(res, exit_error);
+}
+
+void InitDeviceQueue(VulkanInfo &info){
+    vkGetDeviceQueue(info.device, info.graphics_queue_family_index, 0 , &info.graphics_queue);
+
+    if(info.graphics_queue_family_index == info.present_queue_family_index){
+        info.present_queue = info.graphics_queue;
+    }else{
+        vkGetDeviceQueue(info.device, info.present_queue_family_index, 0, &info.present_queue);
+    }
+}
+
+Throw* InitSwapchain(VulkanInfo &info, VkImageUsageFlags usageFlags) {
+    VkResult res;
+    VkSurfaceCapabilitiesKHR surfCap;
+
+    // Add Support for GPU Selection
+    res = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(info.gpus[0], info.surface, &surfCap);
+    if(res){
+        return VkResultToThrow(res, exit_error);
+    }
+
+    uint32_t presentModeCount;
+    res = vkGetPhysicalDeviceSurfacePresentModesKHR(info.gpus[0], info.surface , &presentModeCount, NULL);
+    if(res){
+        return VkResultToThrow(res, exit_error);
+    }
+
+    VkPresentModeKHR *presentModes = (VkPresentModeKHR *)malloc(presentModeCount * sizeof(VkPresentModeKHR));
+
+    if(presentModes){
+        return Throw::ExitError("Failed to Create PresentModes");
+    }
+
+    res = vkGetPhysicalDeviceSurfacePresentModesKHR(info.gpus[0], info.surface , &presentModeCount, presentModes);
+    if(res){
+        return VkResultToThrow(res, exit_error);
+    }
+
+    VkExtent2D swapchainExtent; 
+
+    if(surfCap.currentExtent.width == 0xFFFFFFFF){
+        swapchainExtent.width = info.game_info->getWidth();
+        swapchainExtent.height = info.game_info->getHeight();
+        
+        if(swapchainExtent.width < surfCap.minImageExtent.width){
+            swapchainExtent.width = surfCap.minImageExtent.width;
+        }else if(swapchainExtent.width > surfCap.maxImageExtent.width){
+            swapchainExtent.width = surfCap.maxImageExtent.width;
+        }
+
+        if(swapchainExtent.height < surfCap.minImageExtent.height){
+            swapchainExtent.height = surfCap.minImageExtent.height;
+        }else if(swapchainExtent.height > surfCap.maxImageExtent.height){
+            swapchainExtent.height = surfCap.maxImageExtent.height;
+        }
+    }else {
+        swapchainExtent = surfCap.currentExtent;
+    }
+
+    VkPresentModeKHR swpachainPresentMode = VK_PRESENT_MODE_FIFO_KHR;
+
+    uint32_t desiredNumberOfSwapChainImages = surfCap.minImageCount;
+
+    VkSurfaceTransformFlagBitsKHR preTransform;
+    if(surfCap.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR) {
+        preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+    }else {
+        preTransform = surfCap.currentTransform;
+    }
+
+    VkCompositeAlphaFlagBitsKHR compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+    VkCompositeAlphaFlagBitsKHR compositeAlphaFlags[4] = {
+        VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
+        VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR,
+        VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR,
+        VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR,
+    };
+
+    for (uint32_t i = 0; i < sizeof(compositeAlphaFlags) / sizeof(compositeAlphaFlags[0]); i++) {
+        if (surfCap.supportedCompositeAlpha & compositeAlphaFlags[i]) {
+            compositeAlpha = compositeAlphaFlags[i];
+            break;
+        }
+    }
+
+    VkSwapchainCreateInfoKHR swapchain_ci = {};
+    swapchain_ci.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+    swapchain_ci.pNext = NULL;
+    swapchain_ci.surface = info.surface;
+    swapchain_ci.minImageCount = desiredNumberOfSwapChainImages;
+    swapchain_ci.imageFormat = info.format;
+    swapchain_ci.imageExtent.width = swapchainExtent.width;
+    swapchain_ci.imageExtent.width = swapchainExtent.width;
+    swapchain_ci.preTransform = preTransform;
+    swapchain_ci.compositeAlpha = compositeAlpha;
+    swapchain_ci.imageArrayLayers = 1;
+    swapchain_ci.presentMode = swpachainPresentMode;
+    swapchain_ci.oldSwapchain = VK_NULL_HANDLE;
+    swapchain_ci.clipped = false;
+    swapchain_ci.imageColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+    swapchain_ci.imageUsage = usageFlags;
+    swapchain_ci.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    swapchain_ci.queueFamilyIndexCount = 0;
+    swapchain_ci.pQueueFamilyIndices = NULL;
+    uint32_t queueFamilyIndices[2] = {(uint32_t)info.graphics_queue_family_index, (uint32_t)info.present_queue_family_index};
+    if (info.graphics_queue_family_index != info.present_queue_family_index) {
+        swapchain_ci.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+        swapchain_ci.queueFamilyIndexCount = 2;
+        swapchain_ci.pQueueFamilyIndices = queueFamilyIndices;
+    }
+
+    res = vkCreateSwapchainKHR(info.device, &swapchain_ci, NULL, &info.swap_chain);
+    if(res){
+        return VkResultToThrow(res, exit_error);
+    }
+
+    res = vkGetSwapchainImagesKHR(info.device, info.swap_chain, &info.swapchain_image_count, NULL);
+    if(res){
+        return VkResultToThrow(res, exit_error);
+    }
+
+    VkImage *swapchainImages  = (VkImage *)malloc(info.swapchain_image_count * sizeof(VkImage));
+    if(swapchainImages){
+        return Throw::ExitError("Could Not Create Swapchain Images Malloc Failed");
+    }
+
+    res = vkGetSwapchainImagesKHR(info.device, info.swap_chain, &info.swapchain_image_count, swapchainImages);
+    if(res){
+        return VkResultToThrow(res, exit_error);
+    }
+
+    for(uint32_t i = 0; i < info.swapchain_image_count; i++){
+        SwapChainBuffer sc_buffer;
+
+        VkImageViewCreateInfo colour_image_view = {};
+        colour_image_view.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        colour_image_view.pNext = NULL;
+        colour_image_view.format = info.format;
+        colour_image_view.components.r = VK_COMPONENT_SWIZZLE_R;
+        colour_image_view.components.g = VK_COMPONENT_SWIZZLE_G;
+        colour_image_view.components.b = VK_COMPONENT_SWIZZLE_B;
+        colour_image_view.components.a = VK_COMPONENT_SWIZZLE_A;
+        colour_image_view.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        colour_image_view.subresourceRange.baseMipLevel = 0;
+        colour_image_view.subresourceRange.levelCount = 1;
+        colour_image_view.subresourceRange.baseArrayLayer = 0;
+        colour_image_view.subresourceRange.layerCount = 1;
+        colour_image_view.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        colour_image_view.flags = 0;
+
+        sc_buffer.image = swapchainImages[i];
+
+        colour_image_view.image = sc_buffer.image;
+
+        res = vkCreateImageView(info.device, &colour_image_view, NULL, &sc_buffer.view);
+        info.buffers.push_back(sc_buffer);
+        if(res){
+            return VkResultToThrow(res, exit_error);
+        }
+    }
+
+    free(swapchainImages);
+    info.current_buffer = 0;
+
+    if(NULL != presentModes){
+        free(presentModes);
+    }
+
+    return nullptr;
+}
+
+Throw* InitDepthBuffer(VulkanInfo &info){
+    VkResult res;
+    bool pass;
+    VkImageCreateInfo image_info = {};
+    VkFormatProperties props;
+
+    if (info.depth.format == VK_FORMAT_UNDEFINED) info.depth.format = VK_FORMAT_D16_UNORM;
+
+    const VkFormat depth_format = info.depth.format;
+    vkGetPhysicalDeviceFormatProperties(info.gpus[0], depth_format, &props);
+
+    if (props.linearTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) {
+        image_info.tiling = VK_IMAGE_TILING_LINEAR;
+    } else if (props.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) {
+        image_info.tiling = VK_IMAGE_TILING_OPTIMAL;
+    } else {
+        return Throw::ExitError("depth Format Unsupproted");
+    }
+
+    image_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+    image_info.pNext = NULL;
+    image_info.imageType = VK_IMAGE_TYPE_2D;
+    image_info.format = depth_format;
+    image_info.extent.width = info.game_info->getWidth();
+    image_info.extent.height = info.game_info->getHeight();
+    image_info.extent.depth = 1;
+    image_info.mipLevels = 1;
+    image_info.arrayLayers = 1;
+    image_info.samples = NUM_SAMPLES;
+    image_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    image_info.queueFamilyIndexCount = 0;
+    image_info.pQueueFamilyIndices = NULL;
+    image_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    image_info.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+    image_info.flags = 0;
+
+    VkMemoryAllocateInfo mem_alloc = {};
+    mem_alloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    mem_alloc.pNext = NULL;
+    mem_alloc.allocationSize = 0;
+    mem_alloc.memoryTypeIndex = 0;
+
+    VkImageViewCreateInfo view_info = {};
+    view_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+    view_info.pNext = NULL;
+    view_info.image = VK_NULL_HANDLE;
+    view_info.format = depth_format;
+    view_info.components.r = VK_COMPONENT_SWIZZLE_R;
+    view_info.components.g = VK_COMPONENT_SWIZZLE_G;
+    view_info.components.b = VK_COMPONENT_SWIZZLE_B;
+    view_info.components.a = VK_COMPONENT_SWIZZLE_A;
+    view_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+    view_info.subresourceRange.baseMipLevel = 0;
+    view_info.subresourceRange.levelCount = 1;
+    view_info.subresourceRange.baseArrayLayer = 0;
+    view_info.subresourceRange.layerCount = 1;
+    view_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
+    view_info.flags = 0;
+
+    if (depth_format == VK_FORMAT_D16_UNORM_S8_UINT || depth_format == VK_FORMAT_D24_UNORM_S8_UINT ||
+        depth_format == VK_FORMAT_D32_SFLOAT_S8_UINT) {
+        view_info.subresourceRange.aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
+    }
+
+    VkMemoryRequirements mem_reqs;
+
+    /* Create image */
+    res = vkCreateImage(info.device, &image_info, NULL, &info.depth.image);
+    if(res){
+        return VkResultToThrow(res, exit_error);
+    }
+
+    vkGetImageMemoryRequirements(info.device, info.depth.image, &mem_reqs);
+
+    mem_alloc.allocationSize = mem_reqs.size;
+    /* Use the memory properties to determine the type of memory required */
+    pass =
+        memory_type_from_properties(info, mem_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &mem_alloc.memoryTypeIndex);
+        if(pass){
+            return Throw::ExitError("Failed to Get Memory Type From Properties");
+        }
+
+    /* Allocate memory */
+    res = vkAllocateMemory(info.device, &mem_alloc, NULL, &info.depth.mem);
+    if(res){
+        return VkResultToThrow(res, exit_error);
+    }
+
+    /* Bind memory */
+    res = vkBindImageMemory(info.device, info.depth.image, info.depth.mem, 0);
+    if(res){
+        return VkResultToThrow(res, exit_error);
+    }
+
+    /* Create image view */
+    view_info.image = info.depth.image;
+    res = vkCreateImageView(info.device, &view_info, NULL, &info.depth.view);
+    if(res){
+        return VkResultToThrow(res, exit_error);
+    }
+
+    return nullptr;
 }

@@ -15,6 +15,9 @@
 #include <vulkan/vulkan.h>
 #include "FirestarEngine.h"
 
+#define GLM_FORCE_RADIANS
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #define CMD_TIMEOUT 1000000
 
@@ -48,7 +51,9 @@ typedef struct {
     std::vector<const char *> instance_extention_names;
     std::vector<LayerProperties> instance_layer_props;
     std::vector<VkExtensionProperties> instance_extention_props;
-
+    
+    VkQueue graphics_queue;
+    VkQueue present_queue;
     uint32_t queue_family_count;
     uint32_t current_buffer;
 
@@ -77,6 +82,19 @@ typedef struct {
 
     //Memory
     VkPhysicalDeviceMemoryProperties memory_props;
+
+    // //Camera
+    // glm::mat4 Projection;
+    // glm::mat4 View;
+    // glm::mat4 Model;
+    // glm::mat4 Clip;
+    // glm::mat4 MVP;
+
+    //Commands
+    VkCommandPool cmd_pool;
+    
+    VkCommandBuffer cmd;
+    VkPipelineLayout pipeline_layout;
 
 } VulkanInfo;
 
@@ -108,3 +126,15 @@ void InitDeviceExtensionNames(VulkanInfo &info);
 Throw* InitSwapchainExtension(VulkanInfo &info, FirestarEngine* engine);
 
 bool memory_type_from_properties(VulkanInfo &info, uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex);
+
+Throw* InitCommandPool(VulkanInfo &info);
+
+Throw* InitCommandBuffer(VulkanInfo &info);
+
+Throw* ExecuteBeginCommandBuffer(VulkanInfo &info);
+
+void InitDeviceQueue(VulkanInfo &info);
+
+Throw* InitSwapchain(VulkanInfo &info, VkImageUsageFlags usageFlags);
+
+Throw* InitDepthBuffer(VulkanInfo &info);

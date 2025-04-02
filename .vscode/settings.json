@@ -94,5 +94,5 @@
         "csignal": "cpp",
         "random": "cpp",
         "regex": "cpp"
-    }
+    },
 }

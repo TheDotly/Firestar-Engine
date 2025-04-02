@@ -21,6 +21,8 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Library/SDL)
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Library/cpptrace)
 
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Library/glm)
+
 
 add_library(FirestarEngine SHARED 
     ${SOURCES}
@@ -35,6 +37,7 @@ target_link_libraries(FirestarEngine PRIVATE fmt::fmt)
 target_link_libraries(FirestarEngine PRIVATE SDL3::SDL3)
 target_link_libraries(FirestarEngine PRIVATE cpptrace::cpptrace)
 target_link_libraries(FirestarEngine PRIVATE Vulkan::Vulkan)
+target_link_libraries(FirestarEngine PRIVATE glm::glm)
 
 if(WIN32)
   add_custom_command(
