@@ -7,3 +7,6 @@
 [submodule "Firestar Engine/Library/cpptrace"]
 	path = Firestar Engine/Library/cpptrace
 	url = https://github.com/jeremy-rifkin/cpptrace.git
+[submodule "Firestar Engine/Library/glm"]
+	path = Firestar Engine/Library/glm
+	url = https://github.com/g-truc/glm.git
