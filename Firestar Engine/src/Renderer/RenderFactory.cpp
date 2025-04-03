@@ -5,6 +5,7 @@
 
 //Renderers
 #include "Renderer/Vulkan/VulkanRenderer.h"
+#include "Renderer/OpenGl/OpenGlRenderer.h"
 
 RenderFactory::RenderFactory(RenderAPI api){
 
@@ -17,6 +18,9 @@ RenderFactory::RenderFactory(RenderAPI api){
     fmt::print(fg(fmt::rgb(199,37,39)), "Vulkan\n");
     s_renderer = new VulkanRenderer(engine);
     break;
+    case RenderAPI::OpenGl:
+    fmt::print(fg(fmt::rgb(85, 133, 163)), "OpenGL\n");
+    s_renderer = new OpenGlRenderer(engine);
 
     default:
         break;
@@ -25,6 +29,13 @@ RenderFactory::RenderFactory(RenderAPI api){
 
 Throw* RenderFactory::Initialise(GameInfo* info){
     return s_renderer->Initialise(info);
+}
+
+void RenderFactory::Draw(){
+    s_renderer->Draw();
+}   
+void RenderFactory::Clear(){
+    s_renderer->Clear();
 }
 
 uint64_t RenderFactory::getWindowFlags() {

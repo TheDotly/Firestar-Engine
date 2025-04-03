@@ -10,4 +10,5 @@ int main(int argc, char* argv[]) {
     engine->setGameInfo(gameInfo);
 
     engine->Initialise();
+    engine->StartLoop();
 }

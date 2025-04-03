@@ -28,6 +28,9 @@ Throw* Window::CreateWindow(GameInfo info, RenderAPI api) {
     case RenderAPI::Vulkan:
         flags |= SDL_WINDOW_VULKAN;
         break;
+    case RenderAPI::OpenGl:
+        flags |= SDL_WINDOW_OPENGL;
+        break;
     default:
         break;
     }
@@ -37,6 +40,8 @@ Throw* Window::CreateWindow(GameInfo info, RenderAPI api) {
     if(v_window == nullptr){
         return Throw::ExitError(fmt::format("ERROR: SDL window Failed to Initialise: {}\n", SDL_GetError()));
     }
+
+    return nullptr;
 }
 
 Window::~Window() {

@@ -23,10 +23,12 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Library/cpptrace)
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Library/glm)
 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Library/glad/include)
 
 add_library(FirestarEngine SHARED 
     ${SOURCES}
     ${HEADERS}
+    ${CMAKE_CURRENT_SOURCE_DIR}/Library/glad/src/glad.c
 )
 
 target_include_directories(FirestarEngine PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)

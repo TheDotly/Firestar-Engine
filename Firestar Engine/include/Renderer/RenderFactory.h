@@ -3,6 +3,7 @@
 
 enum RenderAPI {
     Vulkan,
+    OpenGl
 };
 
 class RenderFactory
@@ -18,6 +19,9 @@ public:
     /// @brief Initialise The Renderer 
     /// @return if Renderer Started
     Throw* Initialise(GameInfo* info);
+
+    void Draw();
+    void Clear();
     
     std::string getError() { return s_renderer->GetError();}
 private:

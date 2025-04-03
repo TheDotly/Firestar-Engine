@@ -44,6 +44,7 @@ public:
     static FirestarEngine* getInstance();
 
     void Initialise();
+    void StartLoop();
 
 
     void setGameInfo(GameInfo* info);

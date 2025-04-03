@@ -23,7 +23,7 @@ void FirestarEngine::Initialise(){
     Throw* error = nullptr;
     fmt::print(C_FSE_RED, "Starting Systems\n");
 
-    s_renderFactory = new RenderFactory(Vulkan);
+    s_renderFactory = new RenderFactory(OpenGl);
     s_mainWindow = new Window();
 
     fmt::print(fg(fmt::color::ivory), "Window: ");
@@ -39,10 +39,15 @@ void FirestarEngine::Initialise(){
     Throw::Check(error);
     fmt::print(fg(fmt::color::green_yellow), "✔\n");
 
-    while (true)
+}
+
+void FirestarEngine::StartLoop(){
+    bool running = true;
+    while (running)
     {
-        /* code */
+        s_renderFactory->Draw();
     }
+    
 }
 
 FirestarEngine* FirestarEngine::getInstance(){
