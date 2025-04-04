@@ -64,19 +64,19 @@ Vector3 Vector3::operator/(float scalar) const {
     return (scalar != 0) ? Vector3(x / scalar, y / scalar, z / scalar) : Vector3();
 }
 
-Vector3 Vector3::operator+=(const Vector3& other) {
+Vector3& Vector3::operator+=(const Vector3& other) {
     x += other.x; y += other.y; z += other.z;
     return *this;
 }
-Vector3 Vector3::operator-=(const Vector3& other){
+Vector3& Vector3::operator-=(const Vector3& other){
     x -= other.x; y -= other.y; z -= other.z;
     return *this;
 }
-Vector3 Vector3::operator*=(float scalar) {
+Vector3& Vector3::operator*=(float scalar) {
     x *= scalar; y *= scalar; z *= scalar;
     return *this;
 }
-Vector3 Vector3::operator/=(float scalar){
+Vector3& Vector3::operator/=(float scalar){
     if (scalar != 0) {
         x /= scalar; y /= scalar; z /= scalar;
     }
@@ -93,5 +93,5 @@ bool Vector3::operator!=(const Vector3& other) const {
 }
 
 void Vector3::Print() const {
-    fmt::print("Vector3({},{},{})\n", x, y, z);
+    fmt::print("Vector3({}, {}, {})\n", x, y, z);
 }
