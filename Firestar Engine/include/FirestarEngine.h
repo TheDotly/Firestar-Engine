@@ -19,6 +19,9 @@
 // DataTypes
 #include "DataTypes/GameInfo.h"
 
+//Slate
+#include "Slate/Slate.h"
+
 #include <memory>
 
 typedef enum {
@@ -39,7 +42,7 @@ private:
     RenderFactory* s_renderFactory = nullptr;
     Window* s_mainWindow = nullptr;
     
-
+    Slate* s_currentSlate = nullptr;
 public:
     static FirestarEngine* getInstance();
 
@@ -55,4 +58,8 @@ public:
     ~FirestarEngine();
 
     static Platform GetPlatform();
+
+    // Slate
+    Slate* getCurrentSlate();
+    void setCurrentSlate(Slate* slate);
 };  

@@ -8,7 +8,7 @@ class Vector2 {
 
     Vector2();
     Vector2(float x, float y);
-    Vector2(Vector2 &other);
+    Vector2(const Vector2 &other);
 
     float Magnitude() const;
     float MagnitudeSquared() const;

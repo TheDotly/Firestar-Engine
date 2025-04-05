@@ -1,5 +1,22 @@
 #include "Renderer/OpenGl/OpenGlRenderer.h"
 
+/* TEST VERTEX AND FRAGMENT SHADERS*/
+const char* vertexShaderSource = R"(
+    #version 330 core
+    layout (location = 0) in vec3 aPos;
+    void main() {
+        gl_Position = vec4(aPos, 1.0);
+    }
+)";
+
+const char* fragmentShaderSource = R"(
+    #version 330 core
+    out vec4 FragColor;
+    void main() {
+        FragColor = vec4(1.0, 0.5, 0.2, 1.0);
+    }
+)";
+
 OpenGlRenderer::OpenGlRenderer(FirestarEngine* engine){
    s_engine = engine;
 }
@@ -29,21 +46,21 @@ Throw* OpenGlRenderer::Initialise(GameInfo *info){
 
     // VSYNC SHOULD ADD Effect
     SDL_GL_SetSwapInterval(1);
+
+    glEnable(GL_DEPTH_TEST);
     return nullptr;
 }
 
 void OpenGlRenderer::Draw() {
-    
-
-
-
     Clear();
+
+
     SDL_GL_SwapWindow(v_window->window);
 }
 
 void OpenGlRenderer::Clear() {
-    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void OpenGlRenderer::Shutdown() {

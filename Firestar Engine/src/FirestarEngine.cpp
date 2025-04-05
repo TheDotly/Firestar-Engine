@@ -38,15 +38,17 @@ void FirestarEngine::Initialise(){
 
     Throw::Check(error);
     fmt::print(fg(fmt::color::green_yellow), "✔\n");
-
 }
 
 void FirestarEngine::StartLoop(){
     bool running = true;
     while (running)
     {
+
+
         s_renderFactory->Draw();
     }
+
     
 }
 
@@ -88,4 +90,13 @@ Platform FirestarEngine::GetPlatform() {
             return LINUX;
         #endif
     #endif
+}
+
+Slate* FirestarEngine::getCurrentSlate(){
+    return s_currentSlate;
+}
+
+void FirestarEngine::setCurrentSlate(Slate* slate){
+  
+    s_currentSlate = slate;
 }
