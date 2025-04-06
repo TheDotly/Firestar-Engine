@@ -22,6 +22,9 @@
 //Slate
 #include "Slate/Slate.h"
 
+//File System
+#include "filesystem/FileHandler.h"
+
 #include <memory>
 
 typedef enum {
