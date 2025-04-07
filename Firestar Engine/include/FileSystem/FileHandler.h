@@ -4,8 +4,13 @@
 #include <string>
 #include <filesystem>
 
-#include "DataTypes/Objects/Texture.h"
 #include "DataTypes/Throw.h"
+
+
+// File Extentions
+#include "FileSystem/Object Extention/FSExtention.h"
+#include "FileSystem/Object Extention/FSImage.h"
+#include "FileSystem/Object Extention/FSObject.h"
 
 class FileHandler
 {
@@ -15,7 +20,9 @@ public:
     static bool FileExists(const std::string& filePath);
 
     static std::string GetExtention(const std::string& filePath);
+
+    static bool LoadFileEXT(const std::string& filePath, FSExtention* extention);
+
     
-    static bool LoadImage(const std::string& filePath, Texture& out, int desiredChannels = 4);
 };
 

@@ -97,6 +97,5 @@ Slate* FirestarEngine::getCurrentSlate(){
 }
 
 void FirestarEngine::setCurrentSlate(Slate* slate){
-  
     s_currentSlate = slate;
 }

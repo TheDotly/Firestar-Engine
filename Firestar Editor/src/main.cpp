@@ -1,4 +1,6 @@
 #include "FirestarEngine.h"
+#include <windows.h>
+
 
 int main(int argc, char* argv[]) {
     FirestarEngine* engine = FirestarEngine::getInstance();
@@ -9,10 +11,13 @@ int main(int argc, char* argv[]) {
     Slate* slate = new Slate();
 
     engine->setGameInfo(gameInfo);
-    Texture tex;
-    if(FileHandler::LoadImage("C:/Projects/C++/Firestar-Engine/dotly.png", tex)){
+    FSImage* image = new FSImage();
+    if(FileHandler::LoadFileEXT("C:/Users/joshu/OneDrive/Desktop/Game Engine SDK/Firestar-Engine/dotly.png", image)){
         printf("LOADED IMAGE");
     }
+
+    Texture* tex = image->getTexture();
+    
 
     engine->Initialise();
     engine->StartLoop();

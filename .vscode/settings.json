@@ -93,6 +93,7 @@
         "stacktrace": "cpp",
         "csignal": "cpp",
         "random": "cpp",
-        "regex": "cpp"
+        "regex": "cpp",
+        "xstddef": "cpp"
     },
 }

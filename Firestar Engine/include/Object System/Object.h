@@ -21,7 +21,6 @@ public:
 
     Object(std::string name, bool isActive = true, std::vector<IComponents> components);
     Object(std::string name, bool isActive = true);
-
     
 };
 
