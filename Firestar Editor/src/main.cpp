@@ -11,13 +11,6 @@ int main(int argc, char* argv[]) {
     Slate* slate = new Slate();
 
     engine->setGameInfo(gameInfo);
-    FSImage* image = new FSImage();
-    if(FileHandler::LoadFileEXT("C:/Users/joshu/OneDrive/Desktop/Game Engine SDK/Firestar-Engine/dotly.png", image)){
-        printf("LOADED IMAGE");
-    }
-
-    Texture* tex = image->getTexture();
-    
 
     engine->Initialise();
     engine->StartLoop();

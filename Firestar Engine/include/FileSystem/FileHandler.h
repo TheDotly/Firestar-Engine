@@ -23,6 +23,5 @@ public:
 
     static bool LoadFileEXT(const std::string& filePath, FSExtention* extention);
 
-    
 };
 

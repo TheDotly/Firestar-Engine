@@ -1,5 +1,6 @@
 #pragma once
  
+#include <string>
 
 class IComponents
 {
@@ -8,4 +9,6 @@ private:
 public:
     IComponents(/* args */);
     ~IComponents();
+
+    std::string 
 };
